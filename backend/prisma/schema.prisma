@@ -11,3 +11,71 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum Environment{
+  DEVELOPMENT
+  STAGING
+  PRODUCTION
+}
+
+enum HttpMethod{
+  GET
+  POST
+  PUT
+  PATCH
+  DELETE
+  HEAD
+  OPTIONS
+  TRACE
+}
+
+enum AuthRequirement{
+  UNKNOWN
+  PUBLIC
+  REQUIRED
+
+}
+
+model Application{
+  id            String  @id   
+  name          String
+  description   String?
+  createdAt     DateTime
+  updatedAt     DateTime 
+
+  targets       Target[]
+
+}
+
+model Target{
+  id             String    @id @default(uuid())
+  applicationId  String
+  name           String
+  baseUrl        String
+  environment    Environment  @default(STAGING)
+  createdAt      DateTime
+  updatedAt      DateTime
+ 
+ application     Application @relation(fields:[applicationId],references:[id],onDelete: Restrict)
+ endpoints       Endpoint[]
+ @@unique([applicationId, name])
+ 
+}
+
+model Endpoint{
+  id                String   @id  @default(uuid())
+  targetId          String
+  method            HttpMethod
+  path              String
+  authRequirement   AuthRequirement  @default(UNKNOWN)
+  firstSeenAt       DateTime
+  lastSeenAt        DateTime
+  requiredAt        DateTime?
+  specification     Json?
+  testConfig        Json?
+
+
+  target         Target  @relation(fields:[targetId], references:[id], onDelete: Restrict)
+
+
+}
