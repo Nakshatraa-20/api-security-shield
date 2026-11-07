@@ -11,3 +11,57 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum Role{
+  USER
+  ADMIN
+}
+
+enum OrderStatus{
+  PENDING
+  SHIPPED
+  CANCELLED
+}
+
+model User {
+  id        String    @id @default(uuid())
+  username  String     @unique
+  password  String
+  role      Role
+  order     Order[]
+}
+
+model Order {
+  id          String     @id @default(uuid())
+  userId      String
+  orderedAt   DateTime  @default(now())
+  status      OrderStatus   @default(PENDING)
+
+  user        User      @relation(fields:[userId],references:[id], onDelete:Restrict)
+  items       OrderItem[]
+
+  @@index([userId])
+
+}
+
+model OrderItem{
+  id        String    @id @default(uuid())
+  orderId   String
+  productId  String
+  quantity   Int
+  unitPrice  Decimal   @db.Decimal(10,2)
+
+  order      Order    @relation(fields:[orderId], references:[id],onDelete: Restrict)
+  product    Product  @relation(fields:[productId], references:[id], onDelete: Restrict)
+
+  @@unique([orderId, productId])
+}
+
+model Product{
+  id            String   @id @default(uuid())
+  name          String
+  price         Decimal    @db.Decimal(10,2)
+
+  orderItems    OrderItem[]
+
+}
