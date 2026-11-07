@@ -1,5 +1,7 @@
 import {Router} from "express"
 import  {z} from "zod"
+import bcrypt from "bcrypt"
+import {prisma} from "./db.js"
 
 const router= Router()
 
