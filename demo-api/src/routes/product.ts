@@ -1,6 +1,7 @@
 import {Router} from "express"
 import {prisma} from "../db.js"
 import {z} from "zod"
+import {authMiddleware} from "../middleware/auth.js"
 
 const router= Router()
 
@@ -33,7 +34,7 @@ router.get("/:id", (req,res)=>
     return res.json(product)
 })
 
-router.post("/products", async(req, res)=>{
+router.post("/products", authMiddleware,async(req, res)=>{
 const userId= (req as any).userId
 
 if (typeof userId !== "string" || !userId)
