@@ -25,9 +25,8 @@ router.post("/signup", async(req,res)=>
         })
      }
 
-     
-
      const {username, password}= result.data
+     try{
      const userExists= await prisma.user.findFirst({
         where:{
             username
@@ -52,8 +51,14 @@ router.post("/signup", async(req,res)=>
      return res.status(201).json({
         message: "user created successfully"
      })
-})
+} 
 
+catch{
+     return res.status(500).json({
+      message:"unable to create user"
+     })
+}
+})
 router.post("/signin", async(req, res)=>
 {
      const result= signinSchema.safeParse(req.body)
@@ -83,3 +88,6 @@ router.post("/signin", async(req, res)=>
      return res.json({token})
 
 })
+
+
+
