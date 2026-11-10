@@ -69,7 +69,7 @@ if(!result.success){
 }
 
 const {name,price}= result.data
-const product= prisma.product.create({
+const product= await prisma.product.create({
     data:{name, price}
 })
      return res.status(201).json(product)
