@@ -66,4 +66,31 @@ router.post("/", authMiddleware, async (req, res) => {
   return res.status(201).json(order);
 });
 
+router.get("/", authMiddleware, async(req, res)=>{
+    const userId= (req as any).userId
+    if(!userId){
+        return res.status(403).json({
+            message:"sign in is required"
+        })
+    }
+
+    const user= await prisma.user.findUnique({
+        where:{id:userId},
+        select:{role:true}
+    })
+    if(!user){
+        return res.status(403).json({
+            message:"user not found"
+        })
+    }
+
+    const orders= await prisma.order.findMany({
+        where:user.role== "ADMIN"? {} : {userId},
+        include:{items: true},
+        orderBy: {orderedAt:"desc"}
+
+    })
+    return res.status(200).json(orders)
+})
+
 export default router;
