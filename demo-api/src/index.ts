@@ -9,9 +9,9 @@ import orderRouter from "./routes/order.js"
 import productRouter from "./routes/product.js"
 
 app.use("/user", userRouter)
-app.use("/", productRouter)
+app.use("/product", productRouter)
 app.use("/orders", orderRouter)
 
-app.listen(4000, ()=> {
-    console.log("Demo API running at http://localhost:4000")
+app.listen(4002, ()=> {
+    console.log("Demo API running at http://localhost:4002")
 })

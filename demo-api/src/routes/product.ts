@@ -9,8 +9,9 @@ const productSchema = z.object({
     name: z.string().trim().min(1).max(100),
     price: z.number().positive().max(99_999_999.99).multipleOf(0.01),
   });
+  
 
-router.get("/",async(req, res)=>
+router.get("/get-product",async(req, res)=>
 {
     const products = await prisma.product.findMany()
 
@@ -34,7 +35,7 @@ router.get("/:id", (req,res)=>
     return res.json(product)
 })
 
-router.post("/products", authMiddleware,async(req, res)=>{
+router.post("/create-products", authMiddleware,async(req, res)=>{
 const userId= (req as any).userId
 
 if (typeof userId !== "string" || !userId)
