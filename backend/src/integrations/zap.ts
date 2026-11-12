@@ -29,3 +29,21 @@ export async function zapRequest(path: string) {
 
     return data;
 }
+
+export function zapFetch(url: string, options: RequestInit = {}) {
+    const zapUrl = process.env.ZAP_URL;
+
+    if (!zapUrl) {
+        throw new Error("ZAP_URL is missing");
+    }
+
+    return fetch(url, {
+        ...options,
+        proxy: {
+            url: zapUrl,
+            respectNoProxy: false
+        },
+        redirect: "manual",
+        signal: AbortSignal.timeout(10000)
+    });
+}
