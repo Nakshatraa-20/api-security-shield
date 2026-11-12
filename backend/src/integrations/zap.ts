@@ -47,3 +47,54 @@ export function zapFetch(url: string, options: RequestInit = {}) {
         signal: AbortSignal.timeout(10000)
     });
 }
+
+export async function waitForPassiveScan() {
+    const deadline = Date.now() + 30000;
+
+    while (Date.now() < deadline) {
+        const queue = await zapRequest("/JSON/pscan/view/recordsToScan/");
+        const pending = Number(queue.recordsToScan);
+
+        if (!Number.isInteger(pending) || pending < 0) {
+            throw new Error("Unexpected ZAP queue response");
+        }
+
+        if (pending === 0) {
+            return;
+        }
+
+        await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    throw new Error("ZAP passive scan did not finish within 30 seconds");
+}
+
+export async function getZapAlerts(targetUrl: string) {
+    const alerts = [];
+    let start = 0;
+
+    while (true) {
+        const params = new URLSearchParams({
+            baseurl: targetUrl,
+            start: String(start),
+            count: "100"
+        });
+
+        const data = await zapRequest(
+            `/JSON/alert/view/alerts/?${params}`
+        );
+
+        if (!Array.isArray(data.alerts)) {
+            throw new Error("Unexpected ZAP alerts response");
+        }
+
+        alerts.push(...data.alerts);
+
+        if (data.alerts.length < 100) {
+            return alerts;
+        }
+
+        start += 100;
+    }
+}
+

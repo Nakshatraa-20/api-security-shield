@@ -2,6 +2,11 @@ import "dotenv/config"
 import {checkAuthentication} from "./checks/checkAuthentication.js"
 import { zapRequest } from "./integrations/zap.js";
 
+import {
+    waitForPassiveScan,
+    getZapAlerts
+} from "./integrations/zap.js";
+
 const userToken= process.env.DEMO_USER_TOKEN
 
 if(!userToken){
@@ -15,5 +20,13 @@ const result= await checkAuthentication(
 )
 
 console.log(result)
-const queue = await zapRequest("/JSON/pscan/view/recordsToScan/");
-console.log("Pending ZAP records:", queue.recordsToScan);
+await waitForPassiveScan();
+console.log("ZAP passive scan finished");
+
+await waitForPassiveScan();
+
+const alerts = await getZapAlerts(
+    "http://host.docker.internal:4002/orders"
+);
+
+console.log("ZAP alerts:", alerts);
